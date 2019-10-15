@@ -1,0 +1,8 @@
+composition,tl,site,reference
+Al0Cu200Zr300,1273.15,asm,Copper-Zirconium Binary Phase Diagram (2010 Kang D.H.) a 
+Al35Cu225Zr240,1208,, 
+Al35Cu230Zr235,1163,, 
+Cu250Zr250,1213.15,asm,Copper-Zirconium Binary Phase Diagram (2010 Kang D.H.) a
+Ni300Nb200,1478,,
+Ni400P100,,,
+Zr300Cu150Al50,,,

@@ -1,0 +1,19 @@
+Al:    Al-Cu  Al-Zr    Al-Ni   Al-Pd    Al-Ag    Al-La   Al-Sm  Al-Ce    Al-Pb    Al-Y         
+
+Cu:   Cu-Al  Cu-Zr   Cu-Ni    Cu-Si    Cu-Pd    Cu-La    Cu-Ag    Cu-Mg    Cu-Y    Cu-Au     
+
+Zr:    Zr-Al  Zr-Cu     Zr-Ni    Zr-Pd    Zr-Ag    Zr-Pt    Zr-Y
+
+Ni:    Ni-Al    Ni-Cu    Ni-Zr    Ni-Pd    Ni-La    Ni-P     Ni-Nb
+
+La:    La-Al    La-Cu    La-Ni        
+
+Pd:    Pd-Cu    Pd-Si    Pd-Ni    Pd-P    Pd-Zr    Pd-Al
+
+Mg:    Mg-Ca    Mg-Cu    Mg-Ti    Mg-Y   Mg-Zn
+
+Zr-Cu-Al       
+
+Ni-Co-Cr
+
+Zr-Cu-Ag
