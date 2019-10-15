@@ -18,6 +18,10 @@ with open(potentials, 'rb') as f:
 # Johnson data
 df = pd.read_csv(inoue)
 
+df['Alloy'] = df['Alloy composition (at.%) [ref.]']
+df['Citation'] = df['Alloy'].apply(lambda x: x.strip().split(' ')[-1])
+df['Alloy'] = df['Alloy'].apply(lambda x: x.split(' ')[0])
+
 # Create columns of data
 df['system'] = df['Alloy'].apply(lambda x: re.findall('[A-Z][a-z]?', x))
 df['system'] = df['system'].apply(lambda x: set(x))
@@ -36,13 +40,13 @@ dfmatch = dfmatch.drop(columns=['potential_match']).reset_index(drop=True)
 dfmatch.to_csv('matches.txt', index=False)
 
 # Sort data
-dfmatch = dfmatch.sort_values(by=['dexp (mm)'])
-df = df.sort_values(by=['dexp (mm)'])
+dfmatch = dfmatch.sort_values(by=['Dmax\xa0(mm)'])
+df = df.sort_values(by=['Dmax\xa0(mm)'])
 
 fig, ax = pl.subplots()
 
 y = dfmatch['Alloy'].values
-x = dfmatch['dexp (mm)'].values
+x = dfmatch['Dmax\xa0(mm)'].values
 
 ax.plot(
         x,
