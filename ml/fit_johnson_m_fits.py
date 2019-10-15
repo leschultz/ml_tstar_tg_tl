@@ -5,75 +5,72 @@ from sklearn import linear_model
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv('../jobs_data/m_fit.txt')
-dfjohnson = pd.read_csv('../dmax_johnson/johnson/data_clean.csv')
+# Data path
+df = 'data_original/data.txt'
+dfmfit = 'data/m_fit.txt'
+dfj = 'data_original/johnson_data.txt'
 
-columns = [
-           'Alloy',
-           'Tg (K)',
-           'TL (K)',
-           'm',
-           'dexp (mm)'
-           ]
+# Import data
+df = pd.read_csv(df)
+dfmfit = pd.read_csv(dfmfit)
+dfj = pd.read_csv(dfj)
 
-dfjohnson = dfjohnson[columns]
+# Separte md and experimental data
+dfexp = df[df['method'].isin(['experimental'])]
+dfmd = df[df['method'].isin(['md'])]
 
-dfjohnson.columns = [
-                     'composition',
-                     'tg_exp',
-                     'tl',
-                     'm',
-                     'dmax'
-                     ]
+# Truncate data
+dfexp = dfexp[['composition', 'tl', 'tg/tl', 'm', 'dmax']]
+dfmd = dfmd[['composition', 'tg']]
 
-dfjohnson = dfjohnson.dropna()
+# Combine fitted m with Trg values from md
+dfmfit = pd.merge(dfmfit, dfexp.drop(['m', 'tg/tl'], axis=1), on=['composition'])
+dfmfit = pd.merge(dfmfit, dfmd, on=['composition'])
+dfmfit['tg/tl'] = dfmfit['tg']/dfmfit['tl']
 
-# Gather Tg/T* and Tg/Tl
-dfjohnson['tg_exp/tl'] = dfjohnson['tg_exp']/dfjohnson['tl']
+# Truncate data
+dfmfit = dfmfit[['composition', 'tg/tl', 'm', 'dmax']].dropna()
+dfj = dfj.dropna()
 
 # Take the log of the squared dmax
-df['log(dmax^2)'] = np.log10(df['dmax_mean']**2)
-dfjohnson['log(dmax^2)'] = np.log10(dfjohnson['dmax']**2)
+dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
+dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
-print(df.columns)
-
+print(dfj)
+print(dfmfit)
 # ML
-X_md_train = df[['m_pred', 'tg_md/tl_mean']].values
-X_johnson_train = dfjohnson[['m', 'tg_exp/tl']].values
+X_train = dfj[['m', 'tg/tl']].values
+X_test = dfmfit[['m', 'tg/tl']].values
 
-y_md_train = df['log(dmax^2)'].values
-y_johnson_train = dfjohnson['log(dmax^2)'].values
+y_train = dfj['log(dmax^2)'].values
+y_test = dfmfit['log(dmax^2)'].values
 
+# Model
 reg = linear_model.LinearRegression()
-reg.fit(X_johnson_train, y_johnson_train)
+reg.fit(X_train, y_train)
 
-y_johnson_pred = reg.predict(X_johnson_train)
+# Predictions
+y_johnson_pred = reg.predict(X_train)
+y_mfit_pred = reg.predict(X_test)
 
-y_md_pred = reg.predict(X_md_train)
-
-dfjohnson['log(dmax^2)_pred'] = y_johnson_pred
-df['log(dmax^2)_pred'] = y_md_pred
-
+# Plots
 fig, ax = pl.subplots()
 
 ax.plot(
         y_johnson_pred,
-        y_johnson_train,
+        y_train,
         marker='.',
         linestyle='none',
         label='Original Data'
         )
 
 ax.plot(
-        y_md_pred,
-        y_md_train,
+        y_mfit_pred,
+        y_test,
         marker='8',
         linestyle='none',
         label=r'MD Data'
         )
-
-for i, txt in enumerate(df['composition'].values):
-    ax.annotate(txt, (y_md_pred[i], y_md_train[i]))
 
 ax.legend()
 ax.grid()
@@ -83,11 +80,6 @@ ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
 
 fig.tight_layout()
 
-fig.savefig('../jobs_plots/johnson_m_fit')
-
-df.to_csv('../jobs_data/predictions.txt')
-df.to_csv('../jobs_data/johnson_predictions.txt')
-
-print(df)
+fig.savefig('figures/johnson_fit')
 
 pl.show()
