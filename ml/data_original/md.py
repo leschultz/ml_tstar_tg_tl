@@ -1,4 +1,31 @@
 import pandas as pd
+import numpy as np
+
+
+def uncertainty(x, y, z):
+
+    '''
+    Propagate uncertaintites for division or multiplication.
+
+    inputs:
+        x = Measured values
+        y = Measured values uncertatinties
+        z = Final measured value from calculation
+
+    outputs:
+        err = The uncertainty
+    '''
+    
+    print(x)
+    print(y)
+    err = 0.0
+    for i, j in zip(x, y):
+        err += (j/x)**2
+
+    err **= 0.5
+    err *= abs(z)
+
+    return err
 
 
 def md_data(dfexp, dfmd, source):
@@ -60,5 +87,16 @@ for source in set(df['source'].values):
     mean.append(md_data(dfexp, dfmd, source))
 
 mean = pd.concat(mean, sort=True)
+
+# Calculate features
+mean['tg_md_mean/tl'] = mean['tg_md_mean']/mean['tl']
+mean['tg_exp/tl'] = mean['tg_exp']/mean['tl']
+mean['tg_md_mean/tstar_mean'] = mean['tg_md_mean']/mean['tstar_mean']
+mean['tg_exp/tstar_mean'] = mean['tg_exp']/mean['tstar_mean']
+
+# Feature uncertainties
+mean['tg_md_mean/tl_err'] = mean['tg_md_mean/tl']*((mean['tg_md_sem']/mean['tg_md_mean'])**2)**0.5
+mean['tg_md_mean/tstar_mean_err'] = mean['tg_md_mean/tstar_mean']*((mean['tg_md_sem']/mean['tg_md_mean'])**2+(mean['tstar_sem']/mean['tstar_mean'])**2)**0.5
+mean['tg_exp/tstar_mean_err'] = mean['tg_md_mean/tl']*((mean['tstar_sem']/mean['tstar_mean'])**2)**0.5
 
 mean.to_csv('md_mean.txt', index=False)

@@ -13,15 +13,11 @@ df = '../data_original/md_mean.txt'
 dfkelton = pd.read_csv(dfkelton)
 df = pd.read_csv(df)
 
-# Calculate features
-df['tg_md/tstar'] = df['tg_md_mean']/df['tstar_mean']
-df['tg_exp/tstar'] = df['tg_exp']/df['tstar_mean']
-
 # Format data for machine learning
 compositions = df['composition'].values
 X_train = dfkelton[['tg/tstar']].values
-X_mdpure = df[['tg_md/tstar']].values
-X_mdpartial = df[['tg_exp/tstar']].values
+X_mdpure = df[['tg_md_mean/tstar_mean']].values
+X_mdpartial = df[['tg_exp/tstar_mean']].values
 y_train = dfkelton['m'].values
 
 # Model
