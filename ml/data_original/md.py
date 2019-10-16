@@ -18,13 +18,6 @@ def md_data(dfexp, dfmd, source):
     dfexp = dfexp.rename({'tg': 'tg_exp'}, axis=1)
     dfmd = dfmd.rename({'tg': 'tg_md'}, axis=1)
 
-    # Combine use experimental Tl values for MD
-    dfmd = pd.merge(
-                    dfmd,
-                    dfexp,
-                    on=['composition']
-                    )
-
     # Take statistic values for each composition
     groups = dfmd.groupby(['composition'])
     mean = groups.mean().add_suffix('_mean').reset_index()
@@ -36,6 +29,13 @@ def md_data(dfexp, dfmd, source):
     mean = mean.merge(std)
     mean = mean.merge(sem)
     mean = mean.merge(count)
+
+    # Combine use experimental Tl values for MD
+    mean = pd.merge(
+                    mean,
+                    dfexp,
+                    on=['composition']
+                    )
 
     # Save source
     mean['source'] = source

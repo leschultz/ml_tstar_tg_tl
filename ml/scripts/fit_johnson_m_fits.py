@@ -39,13 +39,13 @@ dfmfit = dfmfit.dropna()
 dfj = dfj[~dfj['composition'].isin(dfmfit['composition'].values)]
 
 # Calculate features
-dfmfit['tg_md/tl'] = dfmfit['tg_md_mean']/dfmfit['tl_mean']
-dfmfit['tg_exp/tl'] = dfmfit['tg_exp_mean']/dfmfit['tl_mean']
+dfmfit['tg_md/tl'] = dfmfit['tg_md_mean']/dfmfit['tl']
+dfmfit['tg_exp/tl'] = dfmfit['tg_exp']/dfmfit['tl']
 dfj['tg/tl'] = dfj['tg']/dfj['tl']
 
 # Take the log of the squared dmax
 dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
-dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax_mean']**2)
+dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
 X_train = dfj[['m', 'tg/tl']].values
@@ -72,7 +72,7 @@ msemfit = metrics.mean_squared_error(y_test, y_mfit_pred)  # MSE
 mseoversigmayj = msej/np.std(y_train)  # MSE/sigmay
 mseoversigmaymfit = msemfit/np.std(y_test)  # MSE/sigmay
 
-# Plots
+# Plots for prediction on training set
 fig, ax = pl.subplots()
 
 ax.plot(
@@ -94,6 +94,7 @@ fig.tight_layout()
 
 fig.savefig('../figures/johnson_fit_train')
 
+# Pltos for prediction on testing sets
 fig, ax = pl.subplots()
 
 ax.plot(
