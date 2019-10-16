@@ -33,11 +33,8 @@ y_mdpure = reg.predict(X_mdpure)
 y_mdpartial = reg.predict(X_mdpartial)
 
 # Create dataframe
-df = {}
-df['composition'] = compositions
 df['m_md'] = y_mdpure
 df['m_exp'] = y_mdpartial
-df = pd.DataFrame(df)
 df.to_csv('../data/m_fit.txt', index=False)
 
 # Figures

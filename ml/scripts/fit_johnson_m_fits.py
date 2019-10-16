@@ -32,24 +32,15 @@ def ml(reg, X_train, y_train):
 
 
 # Data paths
-dfmd = '../data_original/md_mean.txt'
 dfmfit = '../data/m_fit.txt'
 dfj = '../data_original/johnson_data.txt'
 
 # Import data
-dfmd = pd.read_csv(dfmd)
 dfmfit = pd.read_csv(dfmfit)
 dfj = pd.read_csv(dfj)
 
-# Combine fitted m with Trg values from md
-dfmfit = pd.merge(dfmfit, dfmd)
-
 # Truncate data
 dfj = dfj.dropna()
-dfmfit = dfmfit.dropna()
-
-# Remove md data from johnson data
-dfj = dfj[~dfj['composition'].isin(dfmfit['composition'].values)]
 
 # Calculate features
 dfmfit['tg_md/tl'] = dfmfit['tg_md_mean']/dfmfit['tl']
@@ -91,19 +82,7 @@ ax.plot(
         label=score('Johnson Data', r2j, msej, mseoversigmayj)
         )
 
-ax.legend()
-ax.grid()
-
-ax.set_title('Train')
-ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
-ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
-
-fig.tight_layout()
-
-fig.savefig('../figures/johnson_fit_train')
-
 # Plots for prediction on testing sets
-
 ax.plot(
         predmdpure,
         y_md,
@@ -112,19 +91,7 @@ ax.plot(
         label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure)
         )
 
-ax.legend()
-ax.grid()
-
-ax.set_title(r'Test with MD $T_{g}$')
-ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
-ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
-
-fig.tight_layout()
-
-fig.savefig('../figures/johnson_fit_test_pure')
-
 # Plots for prediction on testing sets
-
 ax.plot(
         predmdpartial,
         y_md,
@@ -136,13 +103,11 @@ ax.plot(
 ax.legend()
 ax.grid()
 
-ax.set_title(r'Test with Experimental $T_{g}$')
 ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
 ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
 
 fig.tight_layout()
 
-fig.savefig('../figures/johnson_fit_test_partial')
-
+fig.savefig('../figures/johnson_fit')
 
 pl.show()
