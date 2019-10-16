@@ -20,7 +20,7 @@ def comp_fracs(x):
 
 # Data paths
 dfexp = '../../paper_data/data/data.txt'
-dfmd = '../../md/jobs_data/fragility_mean.txt'
+dfmd = '../../md/jobs_data/fragility.txt'
 
 # Import data
 dfexp = pd.read_csv(dfexp)
@@ -29,6 +29,10 @@ dfmd = pd.read_csv(dfmd)
 # Allocate data type
 dfexp['method'] = 'experimental'
 dfmd['method'] = 'md'
+
+# Change md job name and drop job identifier
+dfmd['composition'] = dfmd['job'].apply(lambda x: x.split('_')[1])
+dfmd = dfmd.drop(['job'], axis=1)
 
 # Reorganize composition naming methodology
 dfexp['composition'] = dfexp['composition'].apply(lambda x: x.split(' ')[0])
