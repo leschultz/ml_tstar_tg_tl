@@ -63,7 +63,7 @@ ax.plot(
 ax.legend()
 ax.grid()
 
-ax.set_xlabel(r'$T_{g}/T_{*}$ fit [-]')
+ax.set_xlabel(r'$T_{g}/T^{*}$ fit [-]')
 ax.set_ylabel(r'Fragility Index (m)')
 
 fig.tight_layout()

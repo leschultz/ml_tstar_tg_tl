@@ -52,11 +52,11 @@ dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
 dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
-X_johnson = dfj[['m', 'tg/tl']].values
+X_johnson = dfj[['tg/tl']].values
 y_johnson = dfj['log(dmax^2)'].values
 
-X_mdpure = dfmfit[['m_md', 'tg_md/tl']].values
-X_mdpartial = dfmfit[['m_exp', 'tg_exp/tl']].values
+X_mdpure = dfmfit[['tg_md/tl']].values
+X_mdpartial = dfmfit[['tg_exp/tl']].values
 y_md = dfmfit['log(dmax^2)'].values
 
 # Model
@@ -108,6 +108,11 @@ ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
 
 fig.tight_layout()
 
-fig.savefig('../figures/johnson_fit')
+# Label points on graph
+for i, j, k, l in zip(dfmfit['composition'], predmdpure, predmdpartial, y_md):
+    ax.annotate(i, (j, l))
+    ax.annotate(i, (k, l))
 
 pl.show()
+
+fig.savefig('../figures/johnson_fit')
