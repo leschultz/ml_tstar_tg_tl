@@ -7,31 +7,19 @@ import numpy as np
 
 # Data paths
 dfkelton = '../../paper_data/kelton/m_vs_tgovertstar.txt'
-df = '../data_original/data.txt'
+df = '../data_original/md_mean.txt'
 
 # Import data
 dfkelton = pd.read_csv(dfkelton)
 df = pd.read_csv(df)
 
-# Keep minimum data
-df = df[df['method'].isin(['md'])]
-df = df[['composition', 'tg/tstar', 'tl', 'tg', 'dmax']]
-
-# Take mean values for each composition
-groups = df.groupby(['composition'])
-mean = groups.mean().add_suffix('_mean').reset_index()
-std = groups.std().add_suffix('_std').reset_index()
-sem = groups.sem().add_suffix('_sem').reset_index()
-count = groups.count().add_suffix('_count').reset_index()
-
-# Combine Data
-df = pd.concat([mean, std, sem, count], axis=1)
-df = df.loc[:, ~df.columns.duplicated()]
+# Calculate features
+df['tg_md/tstar'] = df['tg_md_mean']/df['tstar_mean']
 
 # Format data for machine learning
 compositions = df['composition'].values
 X_train = dfkelton[['tg/tstar']].values
-X_test = df[['tg/tstar_mean']].values
+X_test = df[['tg_md/tstar']].values
 y_train = dfkelton['m'].values
 
 # Model

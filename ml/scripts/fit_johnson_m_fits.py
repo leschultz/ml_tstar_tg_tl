@@ -17,48 +17,39 @@ def score(r2, mse, mseoversigmay):
 
     return label
 
+
 # Data paths
-df = '../data_original/data.txt'
+dfmd = '../data_original/md_mean.txt'
 dfmfit = '../data/m_fit.txt'
 dfj = '../data_original/johnson_data.txt'
 
 # Import data
-df = pd.read_csv(df)
+dfmd = pd.read_csv(dfmd)
 dfmfit = pd.read_csv(dfmfit)
 dfj = pd.read_csv(dfj)
 
-# Separte md and experimental data
-dfexp = df[df['method'].isin(['experimental'])]
-dfmd = df[df['method'].isin(['md'])]
-
-# Truncate data
-dfexp = dfexp[['composition', 'tl', 'tg/tl', 'm', 'dmax']]
-dfmd = dfmd[['composition', 'tg']]
-
 # Combine fitted m with Trg values from md
-dfmfit = pd.merge(
-                  dfmfit,
-                  dfexp.drop(['m', 'tg/tl'], axis=1),
-                  on=['composition']
-                  )
-dfmfit = pd.merge(dfmfit, dfmd, on=['composition'])
-dfmfit['tg/tl'] = dfmfit['tg']/dfmfit['tl']
+dfmfit = pd.merge(dfmfit, dfmd)
 
 # Truncate data
-dfmfit = dfmfit[['composition', 'tg/tl', 'm', 'dmax']].dropna()
-dfj = dfj[['composition', 'tg/tl', 'm', 'dmax']].dropna()
 dfj = dfj.dropna()
+dfmfit = dfmfit.dropna()
 
 # Remove md data from johnson data
 dfj = dfj[~dfj['composition'].isin(dfmfit['composition'].values)]
 
+# Calculate features
+dfmfit['tg_md/tl'] = dfmfit['tg_md_mean']/dfmfit['tl_mean']
+dfmfit['tg_exp/tl'] = dfmfit['tg_exp_mean']/dfmfit['tl_mean']
+dfj['tg/tl'] = dfj['tg']/dfj['tl']
+
 # Take the log of the squared dmax
 dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
-dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
+dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax_mean']**2)
 
 # ML
 X_train = dfj[['m', 'tg/tl']].values
-X_test = dfmfit[['m', 'tg/tl']].values
+X_test = dfmfit[['m', 'tg_md/tl']].values
 
 y_train = dfj['log(dmax^2)'].values
 y_test = dfmfit['log(dmax^2)'].values
