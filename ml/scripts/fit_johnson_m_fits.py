@@ -6,16 +6,29 @@ from sklearn import metrics
 import pandas as pd
 import numpy as np
 
+import pickle
 
-def score(r2, mse, mseoversigmay):
 
-    label=r'$R^{2}=$'+str(r2)
+def score(label, r2, mse, mseoversigmay):
+
+    label += '\n'
+    label += r'$R^{2}=$'+str(r2)
     label += '\n'
     label += r'MSE='+str(mse)
     label += '\n'
     label += r'$MSE/\sigma_{y}=$'+str(mseoversigmay)
 
     return label
+
+
+def ml(reg, X_train, y_train):
+
+    y_pred = reg.predict(X_train)  # Predictions
+    r2 = metrics.r2_score(y_train, y_pred)  # R^2
+    mse = metrics.mean_squared_error(y_train, y_pred)  # MSE
+    mseoversigmay = mse/np.std(y_train)  # MSE/sigmay
+
+    return y_pred, r2, mse, mseoversigmay
 
 
 # Data paths
@@ -48,39 +61,34 @@ dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
 dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
-X_train = dfj[['m', 'tg/tl']].values
-X_test = dfmfit[['m', 'tg_md/tl']].values
+X_johnson = dfj[['m', 'tg/tl']].values
+y_johnson = dfj['log(dmax^2)'].values
 
-y_train = dfj['log(dmax^2)'].values
-y_test = dfmfit['log(dmax^2)'].values
+X_mdpure = dfmfit[['m_md', 'tg_md/tl']].values
+X_mdpartial = dfmfit[['m_exp', 'tg_exp/tl']].values
+y_md = dfmfit['log(dmax^2)'].values
 
 # Model
-reg = linear_model.LinearRegression()
-reg.fit(X_train, y_train)
+reg = pickle.load(open('../model/johnson.sav', 'rb'))
 
 # Predictions
-y_johnson_pred = reg.predict(X_train)
-y_mfit_pred = reg.predict(X_test)
+predj = ml(reg, X_johnson, y_johnson)
+predmdpure = ml(reg, X_mdpure, y_md)
+predmdpartial =  ml(reg, X_mdpartial, y_md)
 
-# ML performance metrics
-r2j = metrics.r2_score(y_train, y_johnson_pred)  # R^2
-r2mfit = metrics.r2_score(y_test, y_mfit_pred)  # R^2
-
-msej = metrics.mean_squared_error(y_train, y_johnson_pred)  # MSE
-msemfit = metrics.mean_squared_error(y_test, y_mfit_pred)  # MSE
-
-mseoversigmayj = msej/np.std(y_train)  # MSE/sigmay
-mseoversigmaymfit = msemfit/np.std(y_test)  # MSE/sigmay
+predj, r2j, msej, mseoversigmayj = predj
+predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
+predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
 # Plots for prediction on training set
 fig, ax = pl.subplots()
 
 ax.plot(
-        y_johnson_pred,
-        y_train,
+        predj,
+        y_johnson,
         marker='.',
         linestyle='none',
-        label=score(r2j, msej, mseoversigmayj)
+        label=score('Johnson Data', r2j, msej, mseoversigmayj)
         )
 
 ax.legend()
@@ -94,26 +102,47 @@ fig.tight_layout()
 
 fig.savefig('../figures/johnson_fit_train')
 
-# Pltos for prediction on testing sets
-fig, ax = pl.subplots()
+# Plots for prediction on testing sets
 
 ax.plot(
-        y_mfit_pred,
-        y_test,
-        marker='8',
+        predmdpure,
+        y_md,
+        marker='*',
         linestyle='none',
-        label=score(r2mfit, msemfit, mseoversigmaymfit)
+        label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure)
         )
 
 ax.legend()
 ax.grid()
 
-ax.set_title('Test')
+ax.set_title(r'Test with MD $T_{g}$')
 ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
 ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
 
 fig.tight_layout()
 
-fig.savefig('../figures/johnson_fit_test')
+fig.savefig('../figures/johnson_fit_test_pure')
+
+# Plots for prediction on testing sets
+
+ax.plot(
+        predmdpartial,
+        y_md,
+        marker='8',
+        linestyle='none',
+        label=score(r'$T_{g}$ Exp', r2mdpartial, msemdpartial, mseoversigmaymdpartial)
+        )
+
+ax.legend()
+ax.grid()
+
+ax.set_title(r'Test with Experimental $T_{g}$')
+ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
+ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
+
+fig.tight_layout()
+
+fig.savefig('../figures/johnson_fit_test_partial')
+
 
 pl.show()

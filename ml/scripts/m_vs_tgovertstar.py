@@ -15,11 +15,13 @@ df = pd.read_csv(df)
 
 # Calculate features
 df['tg_md/tstar'] = df['tg_md_mean']/df['tstar_mean']
+df['tg_exp/tstar'] = df['tg_exp']/df['tstar_mean']
 
 # Format data for machine learning
 compositions = df['composition'].values
 X_train = dfkelton[['tg/tstar']].values
-X_test = df[['tg_md/tstar']].values
+X_mdpure = df[['tg_md/tstar']].values
+X_mdpartial = df[['tg_exp/tstar']].values
 y_train = dfkelton['m'].values
 
 # Model
@@ -27,12 +29,14 @@ reg = linear_model.LinearRegression()
 reg.fit(X_train, y_train)
 
 # Prediction
-y_pred = reg.predict(X_test)
+y_mdpure = reg.predict(X_mdpure)
+y_mdpartial = reg.predict(X_mdpartial)
 
 # Create dataframe
 df = {}
 df['composition'] = compositions
-df['m'] = y_pred
+df['m_md'] = y_mdpure
+df['m_exp'] = y_mdpartial
 df = pd.DataFrame(df)
 df.to_csv('../data/m_fit.txt', index=False)
 
@@ -48,11 +52,19 @@ ax.plot(
         )
 
 ax.plot(
-        X_test,
-        y_pred,
+        X_mdpure,
+        y_mdpure,
         marker='8',
         linestyle='none',
-        label=r'Predicted Data'
+        label=r'Predicted: $T_{g}$ from MD'
+        )
+
+ax.plot(
+        X_mdpartial,
+        y_mdpartial,
+        marker='8',
+        linestyle='none',
+        label=r'Predited: $T_{g}$ from Exp.'
         )
 
 ax.legend()
