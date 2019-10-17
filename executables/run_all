@@ -2,7 +2,7 @@
 
 # All the commands needed to update and analyze data. The only manual thing required is to place additional viscosity jobs into the ./md/jobs directory.
 
-cd md/executables
+cd ../md/executables
 ./gather_data && ./tg && ./fragility
 
 cd ../../
