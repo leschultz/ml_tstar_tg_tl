@@ -48,3 +48,20 @@ python3 fit_md.py
 
 python3 dmax_vs_tgovertl.py
 python3 dmax_vs_tgovertstar.py
+
+cd ../../
+cd ml_trg/data_original
+
+python3 merge.py
+python3 johnson.py
+python3 md.py
+
+cd ../
+cd scripts
+
+python3 m_vs_tgovertstar.py
+python3 johnson_model.py
+python3 fit_johnson_m_fits.py
+
+python3 md_model.py
+python3 fit_md.py

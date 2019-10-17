@@ -31,58 +31,39 @@ def ml(reg, X_train, y_train):
     return y_pred, r2, mse, mseoversigmay
 
 
-# Data paths
+# Data path
 dfmfit = '../data/m_fit.txt'
-dfj = '../data_original/johnson_data.txt'
+
+# Model
+reg = pickle.load(open('../model/md.sav', 'rb'))
 
 # Import data
 dfmfit = pd.read_csv(dfmfit)
-dfj = pd.read_csv(dfj)
 
 # Truncate data
-dfj = dfj.dropna()
 
 # Calculate features
 dfmfit['tg_md/tl'] = dfmfit['tg_md_mean']/dfmfit['tl']
 dfmfit['tg_exp/tl'] = dfmfit['tg_exp']/dfmfit['tl']
-dfj['tg/tl'] = dfj['tg']/dfj['tl']
 
 # Take the log of the squared dmax
-dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
 dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
-X_johnson = dfj[['m']].values
-y_johnson = dfj['log(dmax^2)'].values
-
-X_mdpure = dfmfit[['m_md']].values
-X_mdpartial = dfmfit[['m_exp']].values
+X_mdpure = dfmfit[['tg_md/tl']].values
+X_mdpartial = dfmfit[['tg_exp/tl']].values
 y_md = dfmfit['log(dmax^2)'].values
 
-# Model
-reg = pickle.load(open('../model/johnson.sav', 'rb'))
-
 # Predictions
-predj = ml(reg, X_johnson, y_johnson)
 predmdpure = ml(reg, X_mdpure, y_md)
 predmdpartial =  ml(reg, X_mdpartial, y_md)
 
-predj, r2j, msej, mseoversigmayj = predj
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
-# Plots for prediction on training set
+# Plots for prediction on testing sets
 fig, ax = pl.subplots()
 
-ax.plot(
-        predj,
-        y_johnson,
-        marker='.',
-        linestyle='none',
-        label=score('Johnson Data', r2j, msej, mseoversigmayj)
-        )
-
-# Plots for prediction on testing sets
 ax.plot(
         predmdpure,
         y_md,
@@ -115,4 +96,4 @@ for i, j, k, l in zip(dfmfit['composition'], predmdpure, predmdpartial, y_md):
 
 pl.show()
 
-fig.savefig('../figures/johnson_fit')
+fig.savefig('../figures/md_fit')

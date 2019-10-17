@@ -1,1 +1,0 @@
-tg_md_mean,tstar_mean,tl_mean,tg_exp_mean,dmax_mean,tg_md_std,tstar_std,tl_std,tg_exp_std,dmax_std,tg_md_sem,tstar_sem,tl_sem,tg_exp_sem,dmax_sem,composition,tg_md_count,tstar_count,tl_count,tg_exp_count,dmax_count

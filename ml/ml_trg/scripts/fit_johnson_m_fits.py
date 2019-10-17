@@ -35,6 +35,9 @@ def ml(reg, X_train, y_train):
 dfmfit = '../data/m_fit.txt'
 dfj = '../data_original/johnson_data.txt'
 
+# Model
+reg = pickle.load(open('../model/johnson.sav', 'rb'))
+
 # Import data
 dfmfit = pd.read_csv(dfmfit)
 dfj = pd.read_csv(dfj)
@@ -58,9 +61,6 @@ y_johnson = dfj['log(dmax^2)'].values
 X_mdpure = dfmfit[['tg_md/tl']].values
 X_mdpartial = dfmfit[['tg_exp/tl']].values
 y_md = dfmfit['log(dmax^2)'].values
-
-# Model
-reg = pickle.load(open('../model/johnson.sav', 'rb'))
 
 # Predictions
 predj = ml(reg, X_johnson, y_johnson)
