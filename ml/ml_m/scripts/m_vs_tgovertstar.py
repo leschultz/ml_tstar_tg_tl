@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 
 # Data paths
-dfkelton = '../../paper_data/kelton/m_vs_tgovertstar.txt'
+dfkelton = '../../../paper_data/kelton/m_vs_tgovertstar.txt'
 df = '../data_original/md_mean.txt'
 
 # Import data

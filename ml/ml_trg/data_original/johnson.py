@@ -19,7 +19,7 @@ def comp_fracs(x):
 
 
 # Data path
-df = '../../paper_data/johnson/data.txt'
+df = '../../../paper_data/johnson/data.txt'
 
 # Import data
 df = pd.read_csv(df)

@@ -19,8 +19,8 @@ def comp_fracs(x):
 
 
 # Data paths
-dfexp = '../../paper_data/data/data.txt'
-dfmd = '../../md/jobs_data/fragility.txt'
+dfexp = '../../../paper_data/data/data.txt'
+dfmd = '../../../md/jobs_data/fragility.txt'
 
 # Import data
 dfexp = pd.read_csv(dfexp)
