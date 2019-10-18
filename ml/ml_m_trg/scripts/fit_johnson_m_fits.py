@@ -37,6 +37,7 @@ dfj = '../data_original/johnson_data.txt'
 
 # Model
 reg = pickle.load(open('../model/johnson.sav', 'rb'))
+coeffs = reg.coef_
 
 # Import data
 dfmfit = pd.read_csv(dfmfit)
@@ -71,15 +72,24 @@ predj, r2j, msej, mseoversigmayj = predj
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
+dfj['log(dmax^2)_pred'] = predj
+dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
+dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
+
+dfj.to_csv('../data/johson_model_johnson_pred.csv', index=False)
+dfmfit.to_csv('../data/johnson_model_md_pred.csv', index=False)
+
 # Plots for prediction on training set
 fig, ax = pl.subplots()
 
+sigs = 6
+label = 'log(dmax^2)='+str(coeffs[0])[:sigs]+'m+'+str(coeffs[1])[:sigs]+r'$T_{rg}$'
 ax.plot(
         predj,
         y_johnson,
         marker='.',
         linestyle='none',
-        label=score('Johnson Data', r2j, msej, mseoversigmayj)
+        label=score(label, r2j, msej, mseoversigmayj)
         )
 
 # Plots for prediction on testing sets

@@ -35,7 +35,7 @@ def ml(reg, X_train, y_train):
 dfmfit = '../data/m_fit.txt'
 
 # Model
-reg = pickle.load(open('../model/md.sav', 'rb'))
+reg = pickle.load(open('../model/md_m.sav', 'rb'))
 
 # Import data
 dfmfit = pd.read_csv(dfmfit)
@@ -50,8 +50,8 @@ dfmfit['tg_exp/tl'] = dfmfit['tg_exp']/dfmfit['tl']
 dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
-X_mdpure = dfmfit[['tg_md_mean/tstar_mean', 'tg_md/tl']].values
-X_mdpartial = dfmfit[['tg_exp/tstar_mean', 'tg_exp/tl']].values
+X_mdpure = dfmfit[['m_md', 'tg_md/tl']].values
+X_mdpartial = dfmfit[['m_exp', 'tg_exp/tl']].values
 y_md = dfmfit['log(dmax^2)'].values
 
 # Predictions
@@ -60,11 +60,6 @@ predmdpartial =  ml(reg, X_mdpartial, y_md)
 
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
-
-dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
-dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
-
-dfmfit.to_csv('../data/md_model_md_pred.csv', index=False)
 
 # Plots for prediction on testing sets
 fig, ax = pl.subplots()
@@ -101,4 +96,4 @@ for i, j, k, l in zip(dfmfit['composition'], predmdpure, predmdpartial, y_md):
 
 pl.show()
 
-fig.savefig('../figures/md_fit')
+fig.savefig('../figures/md_m_fit')

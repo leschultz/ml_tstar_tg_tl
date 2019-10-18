@@ -61,11 +61,6 @@ predmdpartial =  ml(reg, X_mdpartial, y_md)
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
-dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
-dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
-
-dfmfit.to_csv('../data/md_model_md_pred.csv', index=False)
-
 # Plots for prediction on testing sets
 fig, ax = pl.subplots()
 
