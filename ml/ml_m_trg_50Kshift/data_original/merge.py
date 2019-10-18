@@ -30,7 +30,7 @@ dfmd = pd.read_csv(dfmd)
 dfexp['method'] = 'experimental'
 dfmd['method'] = 'md'
 
-# Tg shift correction
+# Shift Tg by -50 K
 dfmd['tg'] -= 50.0
 
 # Change md job name and drop job identifier

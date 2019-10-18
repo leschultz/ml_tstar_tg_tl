@@ -46,4 +46,7 @@ df = pd.concat([dfexp, dfmd], sort=True)
 df['tg/tl'] = df['tg']/df['tl']
 df['tg/tstar'] = df['tg']/df['tstar']
 
+# Remove Nb2Ni3
+df = df[~df['composition'].isin(['Nb2Ni3'])]
+
 df.to_csv('data.txt', index=False)

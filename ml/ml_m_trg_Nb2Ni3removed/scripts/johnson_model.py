@@ -29,7 +29,7 @@ dfj['tg/tl'] = dfj['tg']/dfj['tl']
 dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
 
 # ML
-X_train = dfj[['tg/tl']].values
+X_train = dfj[['m', 'tg/tl']].values
 y_train = dfj['log(dmax^2)'].values
 
 # Model

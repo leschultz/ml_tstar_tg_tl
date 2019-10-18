@@ -50,8 +50,8 @@ dfmfit['tg_exp/tl'] = dfmfit['tg_exp']/dfmfit['tl']
 dfmfit['log(dmax^2)'] = np.log10(dfmfit['dmax']**2)
 
 # ML
-X_mdpure = dfmfit[['tg_md/tl']].values
-X_mdpartial = dfmfit[['tg_exp/tl']].values
+X_mdpure = dfmfit[['tg_md_mean/tstar_mean', 'tg_md/tl']].values
+X_mdpartial = dfmfit[['tg_exp/tstar_mean', 'tg_exp/tl']].values
 y_md = dfmfit['log(dmax^2)'].values
 
 # Predictions
@@ -60,6 +60,11 @@ predmdpartial =  ml(reg, X_mdpartial, y_md)
 
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
+
+dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
+dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
+
+dfmfit.to_csv('../data/md_model_md_pred.csv', index=False)
 
 # Plots for prediction on testing sets
 fig, ax = pl.subplots()
