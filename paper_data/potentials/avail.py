@@ -8,6 +8,7 @@ export = 'systems.txt'  # Pickle file containing available systems
 ben = 'ben_potentials'
 eam = 'eam_potentials.txt'
 nist = 'nist_potentials.txt'
+kim = 'openkim_potentials.txt'
 
 # Potentials from Ben
 potentials = os.listdir(ben)
@@ -33,6 +34,24 @@ with open(eam) as f:
             continue
 
         potentials += values
+
+# Potentials from OpenKim
+with open(kim) as f:
+    for line in f:
+        line = line.strip()
+        line = line.split('_')
+        line = line[-5:]
+
+        if not line:
+            continue
+
+        line = line[0]
+        line = set(re.findall('[A-Z][a-z]?|[0-9]+', line))
+
+        if not line:
+            continue
+
+        potentials.append(line)
 
 with open(export, 'wb') as f:
     pickle.dump(potentials, f)
