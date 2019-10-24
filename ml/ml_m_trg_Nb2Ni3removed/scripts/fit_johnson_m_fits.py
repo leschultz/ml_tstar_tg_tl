@@ -83,13 +83,18 @@ dfmfit.to_csv('../data/johnson_model_md_pred.csv', index=False)
 fig, ax = pl.subplots()
 
 sigs = 6
-label = 'log(dmax^2)='+str(coeffs[0])[:sigs]+'m+'+str(coeffs[1])[:sigs]+r'$T_{rg}$'
+label = 'Fit: '
+label += 'log(dmax^2)='+str(coeffs[0])[:sigs]+'m+'
+label += str(coeffs[1])[:sigs]+r'$T_{rg}$'
+
+ax.set_title(label)
 ax.plot(
         predj,
         y_johnson,
         marker='.',
         linestyle='none',
-        label=score(label, r2j, msej, mseoversigmayj)
+        color='k',
+        label=score('Johnson Exp', r2j, msej, mseoversigmayj)
         )
 
 # Plots for prediction on testing sets
@@ -98,6 +103,7 @@ ax.plot(
         y_md,
         marker='*',
         linestyle='none',
+        color='b',
         label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure)
         )
 
@@ -107,6 +113,7 @@ ax.plot(
         y_md,
         marker='8',
         linestyle='none',
+        color='g',
         label=score(r'$T_{g}$ Exp', r2mdpartial, msemdpartial, mseoversigmaymdpartial)
         )
 

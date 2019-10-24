@@ -36,6 +36,7 @@ dfmfit = '../data/m_fit.txt'
 
 # Model
 reg = pickle.load(open('../model/md.sav', 'rb'))
+coeffs = reg.coef_
 
 # Import data
 dfmfit = pd.read_csv(dfmfit)
@@ -69,11 +70,19 @@ dfmfit.to_csv('../data/md_model_md_pred.csv', index=False)
 # Plots for prediction on testing sets
 fig, ax = pl.subplots()
 
+sigs = 6
+label = 'MD Fit: '
+label += 'log(dmax^2)='
+label += str(coeffs[0])[:sigs]+'m+'+str(coeffs[1])[:sigs]+r'$T_{rg}$'
+
+ax.set_title(label)
+
 ax.plot(
         predmdpure,
         y_md,
         marker='*',
         linestyle='none',
+        color='b',
         label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure)
         )
 
@@ -83,6 +92,7 @@ ax.plot(
         y_md,
         marker='8',
         linestyle='none',
+        color='g',
         label=score(r'$T_{g}$ Exp', r2mdpartial, msemdpartial, mseoversigmaymdpartial)
         )
 

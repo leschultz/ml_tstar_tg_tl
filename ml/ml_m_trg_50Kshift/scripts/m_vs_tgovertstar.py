@@ -23,6 +23,7 @@ y_train = dfkelton['m'].values
 # Model
 reg = linear_model.LinearRegression()
 reg.fit(X_train, y_train)
+coeffs = reg.coef_
 
 # Prediction
 y_mdpure = reg.predict(X_mdpure)
@@ -36,11 +37,19 @@ df.to_csv('../data/m_fit.txt', index=False)
 # Figures
 fig, ax = pl.subplots()
 
+sigs = 6
+label = 'Fit: '
+label += 'm='
+label += str(coeffs[0])[:sigs]+r'$T_{g}/T^{*}$'
+
+ax.set_title(label)
+
 ax.plot(
         dfkelton['tg/tstar'],
         dfkelton['m'],
         marker='.',
         linestyle='none',
+        color='k',
         label='Kelton Data'
         )
 
@@ -49,6 +58,7 @@ ax.plot(
         y_mdpure,
         marker='8',
         linestyle='none',
+        color='b',
         label=r'Predicted: $T_{g}$ from MD'
         )
 
@@ -57,6 +67,7 @@ ax.plot(
         y_mdpartial,
         marker='8',
         linestyle='none',
+        color='g',
         label=r'Predited: $T_{g}$ from Exp.'
         )
 
