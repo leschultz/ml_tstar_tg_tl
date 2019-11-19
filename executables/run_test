@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# All the commands needed to update and analyze data. The only manual thing required is to place additional viscosity jobs into the ./md/jobs directory.
+
+cd ../md/executables
+./fragility
+
+cd ../../
+cd paper_data/
+cd inoue
+
+cd ../
+cd johnson
+
+cd ../
+cd ward
+
+cd ../
+cd data
+
+python3 data.py
+
+cd ../..
+cd ml/ml_m_trg/data_original
+
+python3 merge.py
+python3 johnson.py
+python3 md.py
+
+cd ../
+cd scripts
+
+cd ../../
+cd ml_m_trg_50Kshift/data_original
+
+cd ../
+cd scripts
+
+cd ../../
+cd ml_m_trg_Nb2Ni3removed/data_original
+
+python3 merge.py
+python3 johnson.py
+python3 md.py
+
+cd ../
+cd scripts
+
+python3 m_vs_tgovertstar.py
+python3 johnson_model.py
+python3 fit_johnson_m_fits.py
+
+python3 md_model.py
+python3 fit_md.py

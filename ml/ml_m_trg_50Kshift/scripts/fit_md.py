@@ -9,14 +9,18 @@ import numpy as np
 import pickle
 
 
-def score(label, r2, mse, mseoversigmay):
+def score(label, r2, mse, mseoversigmay, digits):
+
+    r2 = str(round(r2, digits))
+    mse = str(round(mse, digits))
+    mseoversigmay = str(round(mseoversigmay, digits))
 
     label += '\n'
-    label += r'$R^{2}=$'+str(r2)
+    label += r'$R^{2}=$'+r2
     label += '\n'
-    label += r'MSE='+str(mse)
+    label += r'MSE='+mse
     label += '\n'
-    label += r'$MSE/\sigma_{y}=$'+str(mseoversigmay)
+    label += r'$MSE/\sigma_{y}=$'+mseoversigmay
 
     return label
 
@@ -62,6 +66,24 @@ predmdpartial =  ml(reg, X_mdpartial, y_md)
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
+# Save performance scores
+score_type = ['r2', 'mse', 'mseoversigmay']
+score_value = [r2mdpure, msemdpure, mseoversigmaymdpure]
+dfmdpure_score = pd.DataFrame({
+                               'metric': score_type,
+                               'score': score_value
+                               })
+
+score_value = [r2mdpartial, msemdpartial, mseoversigmaymdpartial]
+dfmdpartial_score = pd.DataFrame({
+                                  'metric': score_type,
+                                  'score': score_value
+                                  })
+
+# Saving data
+dfmdpure_score.to_csv('../data/md_model_mdpure_pred_score.csv', index=False)
+dfmdpartial_score.to_csv('../data/md_model_mdpartial_pred_score.csv', index=False)
+
 dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
 dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
 
@@ -72,8 +94,9 @@ fig, ax = pl.subplots()
 
 sigs = 6
 label = 'MD Fit: '
-label += 'log(dmax^2)='
-label += str(coeffs[0])[:sigs]+'m+'+str(coeffs[1])[:sigs]+r'$T_{rg}$'
+label += r'log($dmax^2$)='
+label += str(coeffs[0])[:sigs]+r'$T_{g}/T^{*}$+'
+label += str(coeffs[1])[:sigs]+r'$T_{rg}$'
 
 ax.set_title(label)
 
@@ -83,7 +106,7 @@ ax.plot(
         marker='*',
         linestyle='none',
         color='b',
-        label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure)
+        label=score(r'$T_{g}$ MD', r2mdpure, msemdpure, mseoversigmaymdpure, sigs)
         )
 
 # Plots for prediction on testing sets
@@ -93,10 +116,11 @@ ax.plot(
         marker='8',
         linestyle='none',
         color='g',
-        label=score(r'$T_{g}$ Exp', r2mdpartial, msemdpartial, mseoversigmaymdpartial)
+        label=score(r'$T_{g}$ Exp', r2mdpartial, msemdpartial, mseoversigmaymdpartial, sigs)
         )
 
-ax.legend()
+ax.set_aspect('equal', 'box')
+ax.legend(bbox_to_anchor=(1.04, 1), loc='upper left', ncol=1)
 ax.grid()
 
 ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')

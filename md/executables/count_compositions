@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+cd ../scripts
+
+python3 compositions.py ../jobs ../house_keeping_data/composition_counts counts.csv

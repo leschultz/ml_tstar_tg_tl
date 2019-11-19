@@ -4,6 +4,7 @@ from scipy.constants import physical_constants
 from scipy.interpolate import UnivariateSpline
 from functions import finder, data_parse
 from scipy.stats import linregress
+from sklearn.cluster import KMeans
 from knee import opt
 
 import pandas as pd
@@ -42,17 +43,23 @@ parser.add_argument(
 parser.add_argument(
                     '-k',
                     action='store',
-                    type=str,
-                    help='Spline fitting paramter for degree of smoothing spline.'
+                    type=int,
+                    help='The number of K-Means clusters.'
                     )
 
 parser.add_argument(
                     '-s',
                     action='store',
-                    type=str,
-                    help='Spline fitting parameter for smoothing factor.'
+                    type=int,
+                    help='The number of iterations to use for Tg values.'
                     )
 
+parser.add_argument(
+                    '-v',
+                    action='store',
+                    type=int,
+                    help='The number of points to use in linear interpolation.'
+                    )
 
 parser.add_argument(
                     '-a',
@@ -68,143 +75,172 @@ args = parser.parse_args()
 def tg_plots(
              x,
              y,
-             k,
-             s,
+             iterations,
+             density,
+             clusters,
+             saveplots=None,
+             filename=None
              ):
     '''
     The plotting code for Tg.
-
-    inputs:
-        x = The temperature data.
-        y = The E-3kT data.
-        k = Spline fitting parameter.
-        s = Spline fitting parameter.
-
-    outputs:
-        tg = The glass transition temperature.
-    '''
-
-    minx = x[x.argsort()[:6][-1]]  # Minimum number of points for spline to work
-    maxx = max(x)
-
-    rangex = np.linspace(minx, maxx, 100)
-
-    tgs = []
-    for i in rangex:
-        index = (x <= i)
-        xcut = x[index]
+                                                                                                                    
+    inputs:                                                                                                         
+        x = The temperature data.                                                                                   
+        y = The E-3kT data.                                                                                         
+        iterations = The number of times to calculate Tg.                                                           
+        clusters = The number of K-means clusters.                                                                  
+        saveplots = Location to save plots                                                                          
+                                                                                                                    
+    outputs:                                                                                                        
+        tg = The glass transition temperature.                                                                      
+    '''                                                                                                             
+                                                                                                                    
+    # Sort x data ascending and remove the first couple                                                             
+    minx = x[x.argsort()[:2][-1]]                                                                                   
+    maxx = max(x)  # Maximum x data                                                                                 
+                                                                                                                    
+    rangex = np.linspace(minx, maxx, iterations)  # Grid x space                                                    
+                                                                                                                    
+    # Loop from x space grid and calculate various sudo Tg values                                                   
+    tgs = []                                                                                                        
+    xcuts = []                                                                                                      
+    for i in rangex:                                                                                                
+        index = (x <= i)                                                                                            
+        xcut = x[index]                                                                                             
         ycut = y[index]
 
-        spl = UnivariateSpline(x=xcut, y=ycut, k=k, s=s)
-        xfitcut = np.linspace(min(xcut), max(xcut), 100)
-        yfitcut = spl(xfitcut)
+        xfitcut = np.linspace(min(xcut), max(xcut), density)
+        yfitcut = np.interp(xfitcut, xcut, ycut)  # Linear interpolation
 
         tg, endpoints, middle_rmse = opt(xfitcut, yfitcut)
 
         tgs.append(tg)
+        xcuts.append(max(xcut))
 
     tgs = np.array(tgs)
 
-    index = np.argmax(tgs)
-    tg = tgs[index]
+    # Cluster Data
+    X = np.column_stack((tgs, xcuts))
+    kmeans = KMeans(n_clusters=clusters, random_state=0).fit(X)
+    indexes = kmeans.labels_
+
+    # Select cluster with minimum temperature mean
+    labels = np.unique(indexes)
+    tgs_cut = tgs[indexes == labels[0]]
+    mean_xs = np.mean(rangex[indexes == labels[0]])
+    for key in labels[1:]:
+
+        new_mean_xs = np.mean(rangex[indexes == labels[key]])
+        if new_mean_xs < mean_xs:
+            mean_xs = new_mean_xs
+            tgs_cut = tgs[indexes == labels[key]]
+
+    index = np.argmax(tgs_cut)  # Choose maximum Tg
     xcut = rangex[index]
 
-    fig, ax = pl.subplots()
-
-    ax.plot(rangex, tgs, marker='.', linestyle='none', label='Data')
-
-    ax.set_xlabel('Upper Temperature Cutoff [K]')
-    ax.set_ylabel('Tg [K]')
-
-    ax.grid()
-
-    fig.tight_layout()
-
+    # Truncate data based on maximum Tg from minimum cluster
     index = (x <= xcut)
     xnew = x[index]
     ynew = y[index]
 
-    spl = UnivariateSpline(x=xnew, y=ynew, k=k, s=s)
-    xfitcut = np.linspace(xnew[0], xnew[-1], 100)
-    yfitcut = spl(xfitcut)
+    # Find Tg for filtered data
+    xfitcut = np.linspace(min(xnew), max(xnew), density)
+    yfitcut = np.interp(xfitcut, xnew, ynew)  # Linear interpolation
 
     tg, endpoints, middle_rmse = opt(xfitcut, yfitcut)
 
-    ax.axvline(
-               xcut,
-               linestyle=':',
-               color='k',
-               label='Upper Temperature Cutoff: '+str(xcut)+' [K]'
-               )
+    # Condition on plotting
+    if saveplots:
 
-    ax.legend(loc='best')
+        # Create plotting directory
+        saveplots = os.path.join(saveplots, filename)
+        if not os.path.exists(saveplots):
+            os.makedirs(saveplots)
 
-    fig, ax = pl.subplots()
 
-    ax.plot(
-            xnew,
-            ynew,
-            marker='.',
-            linestyle='none',
-            color='b',
-            label='data'
-            )
+        # Plot Tg clusters
+        fig, ax = pl.subplots()
 
-    ax.plot(
-            xfitcut,
-            yfitcut,
-            linestyle=':',
-            color='k',
-            label='Spline Fit: (k='+str(k)+', s='+str(s)+')'
-            )
+        for key in labels:
+            ax.plot(
+                    rangex[indexes == key],
+                    tgs[indexes == key],
+                    marker='.',
+                    linestyle='none',
+                    label='Cluster '+str(key)
+                    )
 
-    ax.axvline(
-               tg,
-               linestyle='--',
-               color='g',
-               label='Tg = '+str(tg)+' [K]'
-               )
+        ax.axvline(
+                   xcut,
+                   linestyle=':',
+                   color='k',
+                   label='Upper Temperature Cutoff: '+str(xcut)+' [K]'
+                   )
 
-    ax.grid()
-    ax.legend()
+        ax.set_xlabel('Upper Temperature Cutoff [K]')
+        ax.set_ylabel('Tg [K]')
 
-    ax.set_xlabel('Temperature [K]')
-    ax.set_ylabel('E-3kT [K/atom]')
+        ax.grid()
+        ax.legend(loc='best')
 
-    fig.tight_layout()
+        fig.savefig(os.path.join(saveplots, 'tg_iteration'))
 
-    fig, ax = pl.subplots()
+        fig.tight_layout()
 
-    ax.plot(
-            x,
-            y,
-            marker='.',
-            linestyle='none',
-            color='b',
-            label='data'
-            )
+        # Plot original data with Tg
+        fig, ax = pl.subplots()
 
-    ax.axvline(
-               tg,
-               linestyle='--',
-               color='g',
-               label='Tg = '+str(tg)+' [K]'
-               )
+        ax.plot(
+                x,
+                y,
+                marker='.',
+                linestyle='none',
+                color='b',
+                label='data'
+                )
 
-    ax.grid()
-    ax.legend()
+        ax.axvline(
+                   tg,
+                   linestyle='--',
+                   color='g',
+                   label='Tg = '+str(tg)+' [K]'
+                   )
 
-    ax.set_xlabel('Temperature [K]')
-    ax.set_ylabel('E-3kT [K/atom]')
+        ax.grid()
+        ax.legend()
 
-    fig.tight_layout()
+        ax.set_xlabel('Temperature [K]')
+        ax.set_ylabel('Potential Energy [eV/atom]')
 
-    pl.close('all')
+        fig.tight_layout()
+
+        fig.savefig(os.path.join(saveplots, 'tg'))
+
+        # Plot error metric for cluster filtered data
+        fig, ax = pl.subplots()
+
+        ax.plot(
+                endpoints,
+                middle_rmse,
+                marker='.',
+                linestyle='none'
+                )
+
+        ax.set_xlabel('Endpoint Temperature [K]')
+        ax.set_ylabel(r'RMSE $[eV^{2}]$')
+
+        ax.grid()
+
+        fig.tight_layout()
+
+        fig.savefig(os.path.join(saveplots, 'rmse'))
+
+        pl.close('all')
 
     return tg
 
 
-def run_iterator(path, filename, tempfile, k, s):
+def run_iterator(path, filename, tempfile, *args, **kwargs):
     '''
     Iterate through each run and gather data.
 
@@ -276,8 +312,8 @@ def run_iterator(path, filename, tempfile, k, s):
         tg = tg_plots(
                       x,
                       y,
-                      k,
-                      s,
+                      *args,
+                      **kwargs,
                       )
 
         runs.append(i)
@@ -289,7 +325,6 @@ def run_iterator(path, filename, tempfile, k, s):
     return df
 
 
-df = run_iterator(args.d, args.n, args.t, args.k, args.s)
+df = run_iterator(args.d, args.n, args.t, args.s, args.v, args.k)
 
 df.to_csv(os.path.join(args.a, 'tg.txt'), index=False)
-

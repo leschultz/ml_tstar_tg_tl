@@ -24,7 +24,7 @@ Zr50Cu38Ag12,4.0,,inoue,663.0,1187.0
 Ni60Nb40,1.0,,inoue,891.0,1478.0
 Ni80P20  ribbons,0.12,94.0,johnson,581.0,1161.0
 Zr50Cu50,2.5,58.0,johnson,673.0,1208.0
-Zr60Cu30Al10,22.0,57.0,johnson,706.0,1123.0
+Zr50Cu40Al10,22.0,57.0,johnson,706.0,1123.0
 Al90Fe8Si2,0.0,,ward,,
 Al88Fe10Si2,0.0,,ward,,
 Al86Fe12Si2,0.0,,ward,,

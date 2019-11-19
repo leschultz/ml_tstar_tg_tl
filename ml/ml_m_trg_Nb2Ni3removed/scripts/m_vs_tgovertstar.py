@@ -71,7 +71,7 @@ ax.plot(
         label=r'Predited: $T_{g}$ from Exp.'
         )
 
-ax.legend()
+ax.legend(bbox_to_anchor=(1.04, 1), loc='upper left', ncol=1)
 ax.grid()
 
 ax.set_xlabel(r'$T_{g}/T^{*}$ fit [-]')

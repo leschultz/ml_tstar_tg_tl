@@ -3,7 +3,7 @@
 # All the commands needed to update and analyze data. The only manual thing required is to place additional viscosity jobs into the ./md/jobs directory.
 
 cd ../md/executables
-./gather_data && ./tg && ./fragility
+./count_compositions && ./gather_data && ./tg && ./fragility  && ./diffusion
 
 cd ../../
 cd paper_data/
@@ -39,9 +39,6 @@ cd scripts
 python3 m_vs_tgovertstar.py
 python3 johnson_model.py
 python3 fit_johnson_m_fits.py
-
-python3 md_model_fitted_m.py
-python3 fit_md_m.py
 
 python3 md_model.py
 python3 fit_md.py

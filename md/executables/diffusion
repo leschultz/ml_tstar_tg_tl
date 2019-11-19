@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd ../scripts
+
+ovitos diffusion.py
+
+cd -
