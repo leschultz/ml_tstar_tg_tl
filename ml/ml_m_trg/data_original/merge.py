@@ -20,7 +20,7 @@ def comp_fracs(x):
 
 # Data paths
 dfexp = '../../../paper_data/data/data.txt'
-dfmd = '../../../md/jobs_data/fragility.txt'
+dfmd = '../../../md/jobs_data/master.csv'
 
 # Import data
 dfexp = pd.read_csv(dfexp)
@@ -29,10 +29,6 @@ dfmd = pd.read_csv(dfmd)
 # Allocate data type
 dfexp['method'] = 'experimental'
 dfmd['method'] = 'md'
-
-# Change md job name and drop job identifier
-dfmd['composition'] = dfmd['job'].apply(lambda x: x.split('_')[1])
-dfmd = dfmd.drop(['job'], axis=1)
 
 # Reorganize composition naming methodology
 dfexp['composition'] = dfexp['composition'].apply(lambda x: x.split(' ')[0])
@@ -44,6 +40,7 @@ df = pd.concat([dfexp, dfmd], sort=True)
 
 # Calculate both Trg and Tg/T*
 df['tg/tl'] = df['tg']/df['tl']
-df['tg/tstar'] = df['tg']/df['tstar']
+df['tg/visc_tcut'] = df['tg']/df['visc_tcut']
+df['tg/diff_tcut'] = df['tg']/df['diff_tcut']
 
 df.to_csv('data.txt', index=False)

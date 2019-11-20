@@ -25,12 +25,9 @@ dfj = dfj[~dfj['composition'].isin(dfmfit['composition'].values)]
 # Calculate features
 dfj['tg/tl'] = dfj['tg']/dfj['tl']
 
-# Take the log of the squared dmax
-dfj['log(dmax^2)'] = np.log10(dfj['dmax']**2)
-
 # ML
 X_train = dfj[['m', 'tg/tl']].values
-y_train = dfj['log(dmax^2)'].values
+y_train = dfj[r'$log(dmax^{2})$'].values
 
 # Model
 reg = linear_model.LinearRegression()

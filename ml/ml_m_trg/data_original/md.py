@@ -2,32 +2,6 @@ import pandas as pd
 import numpy as np
 
 
-def uncertainty(x, y, z):
-
-    '''
-    Propagate uncertaintites for division or multiplication.
-
-    inputs:
-        x = Measured values
-        y = Measured values uncertatinties
-        z = Final measured value from calculation
-
-    outputs:
-        err = The uncertainty
-    '''
-    
-    print(x)
-    print(y)
-    err = 0.0
-    for i, j in zip(x, y):
-        err += (j/x)**2
-
-    err **= 0.5
-    err *= abs(z)
-
-    return err
-
-
 def md_data(dfexp, dfmd, source):
 
     # Filter by source
@@ -35,39 +9,24 @@ def md_data(dfexp, dfmd, source):
 
     # Truncate data
     dfexp = dfexp[['composition', 'tl', 'tg', 'dmax']]
-    dfmd = dfmd[['composition', 'tg', 'tstar']]
-
-    # Take mean experimental values
-    dfexp = dfexp.groupby(['composition']).mean()
+    dfmd = dfmd[['composition', 'tg', 'visc_tcut', 'diff_tcut']]
     dfexp = dfexp.dropna()
 
     # Change Tg naming convention
     dfexp = dfexp.rename({'tg': 'tg_exp'}, axis=1)
     dfmd = dfmd.rename({'tg': 'tg_md'}, axis=1)
 
-    # Take statistic values for each composition
-    groups = dfmd.groupby(['composition'])
-    mean = groups.mean().add_suffix('_mean').reset_index()
-    std = groups.std().add_suffix('_std').reset_index()
-    sem = groups.sem().add_suffix('_sem').reset_index()
-    count = groups.count().add_suffix('_count').reset_index()
-
-    # Combine statistics
-    mean = mean.merge(std)
-    mean = mean.merge(sem)
-    mean = mean.merge(count)
-
     # Combine use experimental Tl values for MD
-    mean = pd.merge(
-                    mean,
-                    dfexp,
-                    on=['composition']
-                    )
+    df = pd.merge(
+                  dfmd,
+                  dfexp,
+                  on=['composition']
+                  )
 
     # Save source
-    mean['source'] = source
+    df['source'] = source
 
-    return mean
+    return df
 
 
 # Load Data
@@ -81,22 +40,26 @@ dfmd = df[df['method'].isin(['md'])]
 mean = []
 for source in set(df['source'].values):
 
+    # Prevent nan
     if source != source:
         continue
 
     mean.append(md_data(dfexp, dfmd, source))
 
-mean = pd.concat(mean, sort=True)
+df = pd.concat(mean, sort=True)
+del mean
 
-# Calculate features
-mean['tg_md_mean/tl'] = mean['tg_md_mean']/mean['tl']
-mean['tg_exp/tl'] = mean['tg_exp']/mean['tl']
-mean['tg_md_mean/tstar_mean'] = mean['tg_md_mean']/mean['tstar_mean']
-mean['tg_exp/tstar_mean'] = mean['tg_exp']/mean['tstar_mean']
+df['tg_md/tl'] = df['tg_md']/df['tl']
+df['tg_exp/tl'] = df['tg_exp']/df['tl']
 
-# Feature uncertainties
-mean['tg_md_mean/tl_err'] = mean['tg_md_mean/tl']*((mean['tg_md_sem']/mean['tg_md_mean'])**2)**0.5
-mean['tg_md_mean/tstar_mean_err'] = mean['tg_md_mean/tstar_mean']*((mean['tg_md_sem']/mean['tg_md_mean'])**2+(mean['tstar_sem']/mean['tstar_mean'])**2)**0.5
-mean['tg_exp/tstar_mean_err'] = mean['tg_md_mean/tl']*((mean['tstar_sem']/mean['tstar_mean'])**2)**0.5
+df['tg_md/visc_tcut'] = df['tg_md']/df['visc_tcut']
+df['tg_md/diff_tcut'] = df['tg_md']/df['diff_tcut']
 
-mean.to_csv('md_mean.txt', index=False)
+df['tg_exp/visc_tcut'] = df['tg_exp']/df['visc_tcut']
+df['tg_exp/diff_tcut'] = df['tg_exp']/df['diff_tcut']
+
+df[r'$log(dmax^{2})$'] = np.log10(df['dmax']**2)
+
+df.to_csv('md_mean.txt', index=False)
+
+print(df)

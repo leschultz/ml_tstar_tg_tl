@@ -1,5 +1,6 @@
 from pymatgen import Composition, Element
 import pandas as pd
+import numpy as np
 
 
 def comp_fracs(x):
@@ -36,5 +37,6 @@ df['composition'] = df['composition'].apply(lambda x: comp_fracs(x))
 
 # Calculate both Trg and Tg/T*
 df['tg/tl'] = df['tg']/df['tl']
+df[r'$log(dmax^{2})$'] = np.log10(df['dmax']**2)
 
 df.to_csv('johnson_data.txt', index=False)

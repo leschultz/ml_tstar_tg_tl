@@ -16,8 +16,8 @@ df = pd.read_csv(df)
 # Format data for machine learning
 compositions = df['composition'].values
 X_train = dfkelton[['tg/tstar']].values
-X_mdpure = df[['tg_md_mean/tstar_mean']].values
-X_mdpartial = df[['tg_exp/tstar_mean']].values
+X_mdpure = df[['tg_md/visc_tcut']].values
+X_mdpartial = df[['tg_exp/visc_tcut']].values
 y_train = dfkelton['m'].values
 
 # Model

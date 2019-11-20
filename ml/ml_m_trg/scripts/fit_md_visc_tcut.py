@@ -35,53 +35,30 @@ def ml(reg, X_train, y_train):
     return y_pred, r2, mse, mseoversigmay
 
 
-# Data paths
-dfmfit = '../data/m_fit.txt'
-dfj = '../data_original/johnson_data.txt'
+# Data path
+dfmfit = '../data_original/md_mean.txt'
 
 # Model
-reg = pickle.load(open('../model/johnson.sav', 'rb'))
+reg = pickle.load(open('../model/md_visc_tcut.sav', 'rb'))
 coeffs = reg.coef_
 
 # Import data
 dfmfit = pd.read_csv(dfmfit)
-dfj = pd.read_csv(dfj)
-
-# Truncate data
-dfj = dfj.dropna()
-
-# Calculate features
-dfj['tg/tl'] = dfj['tg']/dfj['tl']
 
 # ML
-X_johnson = dfj[['m', 'tg/tl']].values
-y_johnson = dfj[r'$log(dmax^{2})$'].values
-
-X_mdpure = dfmfit[['m_md', 'tg_md/tl']].values
-X_mdpartial = dfmfit[['m_exp', 'tg_exp/tl']].values
+X_mdpure = dfmfit[['tg_md/visc_tcut', 'tg_md/tl']].values
+X_mdpartial = dfmfit[['tg_exp/visc_tcut', 'tg_exp/tl']].values
 y_md = dfmfit[r'$log(dmax^{2})$'].values
 
 # Predictions
-predj = ml(reg, X_johnson, y_johnson)
 predmdpure = ml(reg, X_mdpure, y_md)
 predmdpartial =  ml(reg, X_mdpartial, y_md)
 
-predj, r2j, msej, mseoversigmayj = predj
 predmdpure, r2mdpure, msemdpure, mseoversigmaymdpure = predmdpure
 predmdpartial, r2mdpartial, msemdpartial, mseoversigmaymdpartial = predmdpartial
 
-dfj['log(dmax^2)_pred'] = predj
-dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
-dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
-
 # Save performance scores
 score_type = ['r2', 'mse', 'mseoversigmay']
-score_value = [r2j, msej, mseoversigmayj]
-dfj_score = pd.DataFrame({
-                          'metric': score_type,
-                          'score': score_value
-                          })
-
 score_value = [r2mdpure, msemdpure, mseoversigmaymdpure]
 dfmdpure_score = pd.DataFrame({
                                'metric': score_type,
@@ -95,32 +72,25 @@ dfmdpartial_score = pd.DataFrame({
                                   })
 
 # Saving data
-dfj_score.to_csv('../data/johson_model_johnson_pred_score.csv', index=False)
-dfmdpure_score.to_csv('../data/johson_model_mdpure_pred_score.csv', index=False)
-dfmdpartial_score.to_csv('../data/johson_model_mdpartial_pred_score.csv', index=False)
+dfmdpure_score.to_csv('../data/md_model_mdpure_pred_score.csv', index=False)
+dfmdpartial_score.to_csv('../data/md_model_mdpartial_pred_score.csv', index=False)
 
-dfj.to_csv('../data/johson_model_johnson_pred.csv', index=False)
-dfmfit.to_csv('../data/johnson_model_md_pred.csv', index=False)
+dfmfit['log(dmax^2)_tg_md_pred'] = predmdpure
+dfmfit['log(dmax^2)_tg_exp_pred'] = predmdpartial
 
-# Plots for prediction on training set
+dfmfit.to_csv('../data/md_model_md_pred.csv', index=False)
+
+# Plots for prediction on testing sets
 fig, ax = pl.subplots()
 
 sigs = 6
-label = 'Fit: '
-label += r'log($dmax^2$)='+str(coeffs[0])[:sigs]+'m+'
+label = 'MD Fit: '
+label += r'log($dmax^2$)='
+label += str(coeffs[0])[:sigs]+r'$T_{g}/T^{*}$+'
 label += str(coeffs[1])[:sigs]+r'$T_{rg}$'
 
 ax.set_title(label)
-ax.plot(
-        predj,
-        y_johnson,
-        marker='.',
-        linestyle='none',
-        color='k',
-        label=score('Johnson Exp', r2j, msej, mseoversigmayj, sigs)
-        )
 
-# Plots for prediction on testing sets
 ax.plot(
         predmdpure,
         y_md,
@@ -156,4 +126,4 @@ for i, j, k, l in zip(dfmfit['composition'], predmdpure, predmdpartial, y_md):
 
 pl.show()
 
-fig.savefig('../figures/johnson_fit')
+fig.savefig('../figures/md_visc_tcut_fit')
