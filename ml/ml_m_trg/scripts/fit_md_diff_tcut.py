@@ -86,7 +86,7 @@ fig, ax = pl.subplots()
 sigs = 6
 label = 'MD Fit: '
 label += r'log($dmax^2$)='
-label += str(coeffs[0])[:sigs]+r'$T_{g}/T^{*}$+'
+label += str(coeffs[0])[:sigs]+r"$T_{g}/T^{'}$+"
 label += str(coeffs[1])[:sigs]+r'$T_{rg}$'
 
 ax.set_title(label)

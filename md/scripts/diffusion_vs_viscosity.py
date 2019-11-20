@@ -9,6 +9,7 @@ density = 10000
 
 df_visc = pd.read_csv('../jobs_data/viscosities.txt')
 df_diff = pd.read_csv('../jobs_data/diffusions.csv')
+df_tg = pd.read_csv('../jobs_data/tg.txt')
 
 
 def find_nearest(array, value):
@@ -33,8 +34,10 @@ df_visc['run'] = df_visc['run'].apply(lambda x: x.split('/')[0])
 df_diff['run'] = df_diff['run'].apply(lambda x: x.split('/')[-4])
 
 df_visc.columns = ['run', 'temperature', 'viscosity']
+df_tg.columns = ['run', 'tg']
 
 df = df_diff.merge(df_visc, on=['run', 'temperature'], how='left')
+df = df.merge(df_tg, on=['run'], how='left')
 
 df['composition'] = df['run'].apply(lambda x: x.split('_')[1])
 
@@ -72,23 +75,28 @@ ax_visc.axhline(visc_hline, linestyle=':', color='k', label='cutoff')
 composition = []
 diff_tcut = []
 visc_tcut = []
+tgs = []
 for group, values in groups:
 
-    x = 1000.0/values['temperature'].values
+    tg = values['tg_mean'].values[0]  # Should be unique
+    temp = values['temperature'].values
+    x = tg/temp
     y = values[r'$ln(\mu)$_mean'].values
     z = values[r'$ln(D)$_mean'].values
+    yovertemp = y-np.log10(temp)
 
     ynew = np.linspace(min(y), max(y), density)
     xnew = np.linspace(min(x), max(x), density)
+    yovertempnew = np.linspace(min(yovertemp), max(yovertemp), density)
 
     fxy = interpolate.interp1d(x, y)
     fxz = interpolate.interp1d(x, z)
-    fyz = interpolate.interp1d(y, z)
+    fyz = interpolate.interp1d(yovertemp, z)
 
-    znew = fyz(ynew)
+    znew = fyz(yovertempnew)
 
     ax.plot(
-            ynew,
+            yovertempnew,
             znew,
             label=group
             )
@@ -116,16 +124,17 @@ for group, values in groups:
     ax_diff.plot(xnew[diff_ind], diff_hline, marker='.', color='k')
 
     composition.append(group)
-    diff_tcut.append(1000*(xnew[diff_ind])**-1)
-    visc_tcut.append(1000*(xnew[visc_ind])**-1)
+    diff_tcut.append(tg*(xnew[diff_ind])**-1)
+    visc_tcut.append(tg*(xnew[visc_ind])**-1)
+    tgs.append(tg)
 
-ax.set_xlabel(r'$ln(\mu)$ $[ln(Pa \cdot s)]$')
+ax.set_xlabel(r'$ln(\mu/Temperature)$ $[ln(Pa \cdot s)]$')
 ax.set_ylabel(r'ln(D) [$ln(*10^-4 cm^{2} s^{-1})$]')
 
-ax_diff.set_xlabel(r'1000/Temperature $[K^{-1}]$')
+ax_diff.set_xlabel(r'$T_{g}/Temperature$ $[K^{-1}]$')
 ax_diff.set_ylabel(r'ln(D) [$ln(*10^-4 cm^{2} s^{-1})$]')
 
-ax_visc.set_xlabel(r'1000/Temperature $[K^{-1}]$')
+ax_visc.set_xlabel(r'$T_{g}/Temperature$ $[K^{-1}]$')
 ax_visc.set_ylabel(r'$ln(\mu)$ $[ln(Pa \cdot s)]$')
 
 ax.legend()
@@ -136,12 +145,17 @@ fig.tight_layout()
 fig_diff.tight_layout()
 fig_visc.tight_layout()
 
-pl.show()
+fig.savefig('../jobs_plots/diffusion_vs_viscosity.png')
+fig_diff.savefig('../jobs_plots/diffusion_vs_temperature.png')
+fig_visc.savefig('../jobs_plots/viscosity_vs_temperature.png')
 
 df = pd.DataFrame({
                    'composition': composition,
                    'diff_tcut': diff_tcut,
                    'visc_tcut': visc_tcut,
+                   'tg': tgs,
                    })
 
-df.to_csv('../jobs_data/tcuts.csv', index=False)
+df.to_csv('../jobs_data/master.csv', index=False)
+
+print(df)
