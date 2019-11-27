@@ -3,8 +3,8 @@ from scipy import interpolate
 import pandas as pd
 import numpy as np
 
-visc_cut = 0.075
-diff_cut = 0.1
+visc_cut = 0.3
+diff_cut = 0.1575
 density = 10000
 
 df_visc = pd.read_csv('../jobs_data/viscosities.txt')

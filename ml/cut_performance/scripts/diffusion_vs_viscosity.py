@@ -25,8 +25,6 @@ dfmd['composition'] = dfmd['composition'].apply(lambda x: comp_fracs(x))
 dfexp = dfexp[['composition', 'tl', 'dmax']]
 dfexp = dfexp.dropna()
 
-#dfmd = dfmd[~dfmd['composition'].isin(['Nb2Ni3'])]
-
 groups = dfmd.groupby(['composition'])
 
 data = []
@@ -48,6 +46,9 @@ for diff_cut in diff_cuts:
 
     # Combine data
     df = dfexp.merge(dfcuts, on=['composition'])
+
+    # Drop duplicate compositions
+    df = df.drop_duplicates(subset='composition', keep='first')
 
     # Calculate both Trg and Tg/T*
     df['tg/tl'] = df['tg']/df['tl']
