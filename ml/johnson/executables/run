@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ../scripts
+python3 gather_data.py
+python3 m_vs_tgovertstar.py
+python3 fit_johnson_m_fits.py

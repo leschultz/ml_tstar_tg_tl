@@ -183,9 +183,9 @@ def tg_plots(
         ax.grid()
         ax.legend(loc='best')
 
-        fig.savefig(os.path.join(saveplots, 'tg_iteration'))
-
         fig.tight_layout()
+
+        fig.savefig(os.path.join(saveplots, 'tg_iteration'))
 
         # Plot original data with Tg
         fig, ax = pl.subplots()

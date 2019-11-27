@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ../scripts
+python3 gather_data.py
+python3 fit_md_diff_tcut.py
+python3 fit_md_visc_tcut.py
