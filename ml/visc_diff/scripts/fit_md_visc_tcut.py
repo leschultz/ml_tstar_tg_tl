@@ -52,6 +52,7 @@ y_train = df[r'$log(dmax^{2})$'].values
 reg = linear_model.LinearRegression()  # Import model
 reg.fit(X_train, y_train)  # Train the model
 coeffs = reg.coef_  # Fitting coefficients
+intercpet = reg.intercept_  # Intercept
 
 # Predictions
 pred = ml(reg, X_train, y_train)
@@ -78,6 +79,7 @@ label = 'MD Fit: '
 label += r'log($dmax^2$)='
 label += str(round(coeffs[0], sigs))+r"$T_{g}/T^{*}$+"
 label += str(round(coeffs[1], sigs))+r'$T_{rg}$'
+label += '+('+str(round(intercpet, sigs))+')'
 
 ax.set_title(label)
 
@@ -90,14 +92,25 @@ ax.plot(
         label=score(r'$T_{g}$ MD', r2, mse, mseoversigmay, sigs)
         )
 
-ax.set_aspect('equal', 'box')
-ax.legend(bbox_to_anchor=(1.04, 1), loc='upper left', ncol=1)
+ax.legend(loc='best')
 ax.grid()
 
 ax.set_xlabel(r'Predicted $log(dmax^2)$ $[log(mm)]$')
 ax.set_ylabel(r'Actual $log(dmax^2)$ $[log(mm)]$')
 
-fig.tight_layout()
+if ax.get_ylim()[1] > ax.get_xlim()[1]:
+    max_lim = ax.get_ylim()[1]
+else:
+    max_lim = ax.get_xlim()[1]
+    
+if ax.get_ylim()[0] < ax.get_xlim()[0]:
+    min_lim = ax.get_ylim()[0]
+else:
+    min_lim = ax.get_xlim()[0]
+
+ax.set_xlim((min_lim, max_lim))
+ax.set_ylim((min_lim, max_lim))
+ax.set_aspect('equal')
 
 # Label points on graph
 for i, j, l in zip(df['composition'], y_pred, y_train):

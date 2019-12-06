@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ../scripts
+python3 gather_data.py
+python3 fit_trg.py

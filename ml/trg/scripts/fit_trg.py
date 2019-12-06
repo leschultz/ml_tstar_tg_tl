@@ -45,7 +45,7 @@ df = pd.read_csv(df)
 df = df.drop_duplicates(subset='composition', keep='first')
 
 # ML
-X_train = df[['tg_md/diff_tcut', 'tg_md/tl']].values
+X_train = df[['tg_md/tl']].values
 y_train = df[r'$log(dmax^{2})$'].values
 
 # Model
@@ -67,9 +67,9 @@ df_score = pd.DataFrame({
                          })
 
 # Saving data
-df_score.to_csv('../data/md_model_mdpure_pred_score_diff_tcut.csv', index=False)
+df_score.to_csv('../data/md_score_trg.csv', index=False)
 df['log(dmax^2)_pred'] = y_pred
-df.to_csv('../data/md_model_md_pred_diff_tcut.csv', index=False)
+df.to_csv('../data/md_trg.csv', index=False)
 
 # Plots for prediction on testing sets
 fig, ax = pl.subplots()
@@ -77,8 +77,7 @@ fig, ax = pl.subplots()
 sigs = 3
 label = 'MD Fit: '
 label += r'log($dmax^2$)='
-label += str(round(coeffs[0], sigs))+r"$T_{g}/T^{'}$+"
-label += str(round(coeffs[1], sigs))+r'$T_{rg}$'
+label += str(round(coeffs[0], sigs))+r'$T_{rg}$'
 label += '+('+str(round(intercpet, sigs))+')'
 
 ax.set_title(label)
@@ -102,7 +101,7 @@ if ax.get_ylim()[1] > ax.get_xlim()[1]:
     max_lim = ax.get_ylim()[1]
 else:
     max_lim = ax.get_xlim()[1]
-
+    
 if ax.get_ylim()[0] < ax.get_xlim()[0]:
     min_lim = ax.get_ylim()[0]
 else:
@@ -116,4 +115,4 @@ ax.set_aspect('equal')
 for i, j, l in zip(df['composition'], y_pred, y_train):
     ax.annotate(i, (j, l))
 
-fig.savefig('../figures/md_diff_tcut_fit')
+fig.savefig('../figures/md_trg_fit')
