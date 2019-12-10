@@ -5,14 +5,17 @@ from scipy import interpolate
 import numpy as np
 
 
-def score(label, r2, mse, mseoversigmay, digits):
+def score(label, r2, r2bar, mse, mseoversigmay, digits):
 
     r2 = str(round(r2, digits))
+    r2bar = str(round(r2bar, digits))
     mse = str(round(mse, digits))
     mseoversigmay = str(round(mseoversigmay, digits))
 
     label += '\n'
     label += r'$R^{2}=$'+r2
+    label += '\n'
+    label += r'$\overline{R}^{2}=$'+r2bar
     label += '\n'
     label += r'MSE='+mse
     label += '\n'
@@ -23,12 +26,14 @@ def score(label, r2, mse, mseoversigmay, digits):
 
 def ml(reg, X_train, y_train):
 
+    samples = len(y_train)
     y_pred = reg.predict(X_train)  # Predictions
     r2 = metrics.r2_score(y_train, y_pred)  # R^2
+    r2bar = 1-(1-r2)*(samples-1)/(samples-len(reg.coef_)-1)
     mse = metrics.mean_squared_error(y_train, y_pred)  # MSE
     mseoversigmay = mse/np.std(y_train)  # MSE/sigmay
 
-    return y_pred, r2, mse, mseoversigmay
+    return y_pred, r2, r2bar, mse, mseoversigmay
 
 
 def comp_fracs(x):

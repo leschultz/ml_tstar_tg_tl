@@ -79,28 +79,32 @@ for diff_cut in diff_cuts:
                  'diff_cut_scores': diff_pred
                  })
 
-fig_diff, ax_diff = pl.subplots(3)
+fig_diff, ax_diff = pl.subplots(4)
 for i in data:
 
     diff_cut = i['diff_cut']
     diff_pred = i['diff_cut_scores']
 
-    y_pred_diff, r2_diff, mse_diff, mseoversigmay_diff = diff_pred
+    y_pred_diff, r2_diff, r2bar_diff, mse_diff, mseoversigmay_diff = diff_pred
 
     ax_diff[0].plot(diff_cut, r2_diff, marker='.', linestyle='none', color='b')
-    ax_diff[1].plot(diff_cut, mse_diff, marker='.', linestyle='none', color='b')
-    ax_diff[2].plot(diff_cut, mseoversigmay_diff, marker='.', linestyle='none', color='b')
+    ax_diff[1].plot(diff_cut, r2bar_diff, marker='.', linestyle='none', color='b')
+    ax_diff[2].plot(diff_cut, mse_diff, marker='.', linestyle='none', color='b')
+    ax_diff[3].plot(diff_cut, mseoversigmay_diff, marker='.', linestyle='none', color='b')
 
     ax_diff[0].set_ylabel(r'$R^{2}$')
-    ax_diff[1].set_ylabel(r'$MSE$')
-    ax_diff[2].set_ylabel(r'$MSE/\sigma_{y}$')
+    ax_diff[1].set_ylabel(r'$\overline{R}^{2}$')
+    ax_diff[2].set_ylabel(r'$MSE$')
+    ax_diff[3].set_ylabel(r'$MSE/\sigma_{y}$')
 
     ax_diff[0].grid()
     ax_diff[1].grid()
     ax_diff[2].grid()
+    ax_diff[3].grid()
 
     ax_diff[-1].set_xlabel(r'Diffusion Cutoff $[*10^{-4} cm^{2} s^{-1}]$')
 
+fig_diff.tight_layout()
 fig_diff.savefig('../plots/diff_cut')
 
 # Same code except for viscosity
@@ -152,26 +156,30 @@ for visc_cut in visc_cuts:
                  })
 
 
-fig_diff, ax_diff = pl.subplots(3)
+fig_diff, ax_diff = pl.subplots(4)
 for i in data:
 
     diff_cut = i['visc_cut']
     diff_pred = i['visc_cut_scores']
 
-    y_pred_diff, r2_diff, mse_diff, mseoversigmay_diff = diff_pred
+    y_pred_diff, r2_diff, r2bar_diff, mse_diff, mseoversigmay_diff = diff_pred
 
     ax_diff[0].plot(diff_cut, r2_diff, marker='.', linestyle='none', color='b')
-    ax_diff[1].plot(diff_cut, mse_diff, marker='.', linestyle='none', color='b')
-    ax_diff[2].plot(diff_cut, mseoversigmay_diff, marker='.', linestyle='none', color='b')
+    ax_diff[1].plot(diff_cut, r2bar_diff, marker='.', linestyle='none', color='b')
+    ax_diff[2].plot(diff_cut, mse_diff, marker='.', linestyle='none', color='b')
+    ax_diff[3].plot(diff_cut, mseoversigmay_diff, marker='.', linestyle='none', color='b')
 
     ax_diff[0].set_ylabel(r'$R^{2}$')
-    ax_diff[1].set_ylabel(r'$MSE$')
-    ax_diff[2].set_ylabel(r'$MSE/\sigma_{y}$')
+    ax_diff[1].set_ylabel(r'$\overline{R}^{2}$')
+    ax_diff[2].set_ylabel(r'$MSE$')
+    ax_diff[3].set_ylabel(r'$MSE/\sigma_{y}$')
 
     ax_diff[0].grid()
     ax_diff[1].grid()
     ax_diff[2].grid()
+    ax_diff[3].grid()
 
     ax_diff[-1].set_xlabel(r'Viscosity Cutoff $[Pa \cdot s]$')
 
+fig_diff.tight_layout()
 fig_diff.savefig('../plots/visc_cut')
