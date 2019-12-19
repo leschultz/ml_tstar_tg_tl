@@ -84,7 +84,7 @@ sigs = 3
 label = 'MD Fit: '
 label += r'log($dmax^2$)='
 label += '('+str(round(coeffs[0], sigs))+r"$)T_{g}/T^{'}$+"
-label += '('+str(round(coeffs[1], sigs))+r'$)T_{rg}$'
+label += '('+str(round(coeffs[1], sigs))+r'$)T_{rg}$+'
 label += '('+str(round(intercpet, sigs))+')'
 
 ax.set_title(label)
